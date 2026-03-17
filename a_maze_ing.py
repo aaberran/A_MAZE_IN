@@ -31,7 +31,7 @@ def parse_config(filename: str) -> dict:
                     elif key in ["ENTRY", "EXIT"]:
                         try:
                             parts = key_value[1].split(',')
-                            if len(parts) == 1 or parts[1] == "":
+                            if len(parts) > 2 or parts[1] == "":
                                 raise ValueError("Invalid Information Format")
                             value = (int(parts[0]), int(parts[1]))
                         except ValueError as e:
