@@ -1,6 +1,6 @@
 # default config
 WIDTH=20
-HEIGHT=15
+HEIGHT=10
 ENTRY=0,0
 EXIT=7,8
 OUTPUT_FILE=maze.txt

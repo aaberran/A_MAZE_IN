@@ -31,7 +31,7 @@ class MazeGenerator:
             None
         """
         if self.width < 0 or self.height < 0:
-            print(f"errror") #modify error
+            print(f"Error") #modify error
             sys.exit(1)
         logo = self.draw_42(entry, end) or set()
         stack = [(0,0)]

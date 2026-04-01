@@ -1,4 +1,5 @@
 import sys
+import os
 from mazegen.maze_generator import MazeGenerator
 
 def parse_config(filename: str) -> dict:
@@ -17,7 +18,7 @@ def parse_config(filename: str) -> dict:
                 line = line.strip()
                 if not line or line.startswith('#'):
                     continue
-                key_value = line.split('=')
+                key_value = line.split('=', 1) 
                 try:
                     if len(key_value) == 1 or key_value[1] == "":
                         raise ValueError(f"missing value for key '{key_value[0]}'")
@@ -50,15 +51,18 @@ def parse_config(filename: str) -> dict:
             if "SEED" not in config:
                 config["SEED"] = 42
             keys = ["WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"]
-            for key in keys:
-                if key not in config:
-                    print(f"Error: missing key '{key}' in config file")
-                    sys.exit(1)
+            try:
+                for key in keys:
+                    if key not in config:
+                        raise ValueError(f"missing key '{key}' in config file")
+            except ValueError as e:
+                print(f"Error: {e}")
+                sys.exit(1)
             try:
                 if config["WIDTH"] <= 0 or config["HEIGHT"] <= 0:
                     raise ValueError(f"width and height must be greater than 0")
             except ValueError as e:
-                print(f"Error : {e}")
+                print(f"Error: {e}")
                 sys.exit(1)
                 
             try:
@@ -79,7 +83,6 @@ def parse_config(filename: str) -> dict:
             except ValueError as e:
                 print(f"Error : {e}")
                 sys.exit(1)
-                
     except FileNotFoundError:
         print(f"Error: file '{filename}' not found")
         sys.exit(1)
@@ -218,6 +221,7 @@ def main() -> None:
     ]
     color_index: int = 0
 
+    os.system("clear")
     display_maze(maze, config["ENTRY"], config["EXIT"], show_solution, wall_color)
 
     while True:
@@ -226,7 +230,10 @@ def main() -> None:
         print("2. Show/Hide path")
         print("3. Change wall color")
         print("4. Quit")
-        choice = input("Choice (1-4): ").strip()
+        try:
+            choice = input("Choice (1-4): ").strip()
+        except (EOFError, KeyboardInterrupt):
+            break
 
         if choice == "1":
             config["SEED"] += 1
@@ -244,15 +251,18 @@ def main() -> None:
                 config["EXIT"],
                 config["OUTPUT_FILE"]
             )
+            os.system("clear")
             display_maze(maze, config["ENTRY"], config["EXIT"], show_solution, wall_color)
 
         elif choice == "2":
             show_solution = not show_solution
+            os.system("clear")
             display_maze(maze, config["ENTRY"], config["EXIT"], show_solution, wall_color)
 
         elif choice == "3":
             color_index = (color_index + 1) % len(colors)
             wall_color = colors[color_index]
+            os.system("clear")
             display_maze(maze, config["ENTRY"], config["EXIT"], show_solution, wall_color)
 
         elif choice == "4":
