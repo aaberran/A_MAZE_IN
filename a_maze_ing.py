@@ -2,6 +2,7 @@ import sys
 import os
 from mazegen.maze_generator import MazeGenerator
 
+
 def parse_config(filename: str) -> dict:
     """Parse the configuration file and return a dictionary.
 
@@ -18,10 +19,12 @@ def parse_config(filename: str) -> dict:
                 line = line.strip()
                 if not line or line.startswith('#'):
                     continue
-                key_value = line.split('=', 1) 
+                key_value: list = line.split('=', 1)
                 try:
                     if len(key_value) == 1 or key_value[1] == "":
-                        raise ValueError(f"missing value for key '{key_value[0]}'")
+                        raise ValueError(
+                            f"missing value for key '{key_value[0]}'"
+                            )
                 except ValueError as e:
                     print(f"Error : {e}")
                     sys.exit(1)
@@ -39,7 +42,17 @@ def parse_config(filename: str) -> dict:
                             print(f"Error : {e}")
                             sys.exit(1)
                     elif key == "PERFECT":
-                        value = key_value[1].strip() == 'True'
+                        value = key_value[1].strip()
+                        value = value.upper()
+                        if value == 'TRUE' or value == '1':
+                            value = True
+                        elif value == 'FALSE' or value == '0':
+                            value = False
+                            print(value)
+                        else:
+                            raise ValueError(
+                                "PERFECT must be True/False or 1/0"
+                                )
                     elif key == "OUTPUT_FILE":
                         value = key_value[1].strip()
                     else:
@@ -50,7 +63,9 @@ def parse_config(filename: str) -> dict:
                 config[key] = value
             if "SEED" not in config:
                 config["SEED"] = 42
-            keys = ["WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"]
+            keys = [
+                "WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"
+                ]
             try:
                 for key in keys:
                     if key not in config:
@@ -60,20 +75,23 @@ def parse_config(filename: str) -> dict:
                 sys.exit(1)
             try:
                 if config["WIDTH"] <= 0 or config["HEIGHT"] <= 0:
-                    raise ValueError(f"width and height must be greater than 0")
+                    raise ValueError("width and height must be greater than 0")
             except ValueError as e:
                 print(f"Error: {e}")
                 sys.exit(1)
-                
             try:
                 ix = config["ENTRY"][0]
                 iy = config["ENTRY"][1]
                 ox = config["EXIT"][0]
                 oy = config["EXIT"][1]
                 if ix < 0 or iy < 0:
-                    raise ValueError(f"entry coordinates cannot be negative, got ({ix}, {iy})")
+                    raise ValueError(
+                        f"entry coordinates cannot "
+                        f"be negative, got ({ix}, {iy})"
+                        )
                 if ox < 0 or oy < 0:
-                    raise ValueError(f"exit coordinates cannot be negative, got ({ox}, {oy})")
+                    raise ValueError(f"exit coordinates cannot "
+                                     f"be negative, got ({ox}, {oy})")
                 if ix == ox and iy == oy:
                     raise ValueError("entry and exit cannot be the same cell")
                 if ix >= config["WIDTH"] or iy >= config["HEIGHT"]:
@@ -89,8 +107,10 @@ def parse_config(filename: str) -> dict:
     return config
 
 
-
-def write_output(maze: MazeGenerator, entry: tuple[int, int], end: tuple[int, int], output_file: str) -> None:
+def write_output(maze: MazeGenerator,
+                 entry: tuple[int, int],
+                 end: tuple[int, int],
+                 output_file: str) -> None:
     """Write maze data to output file.
 
     Args:
@@ -118,7 +138,6 @@ def write_output(maze: MazeGenerator, entry: tuple[int, int], end: tuple[int, in
     except IOError:
         print(f"Error: cannot write to file '{output_file}'")
         sys.exit(1)
-            
 
 
 def display_maze(
@@ -139,11 +158,11 @@ def display_maze(
     """
     RESET = "\033[0m"
     GREEN = "\033[32m"
-    RED   = "\033[31m"
-    BLUE  = "\033[34m"
+    RED = "\033[31m"
+    BLUE = "\033[34m"
     solutions: set[tuple[int, int]] = set()
     if show_solution:
-        cx, cy = entry 
+        cx, cy = entry
         solutions.add((cx, cy))
         for side in maze.solution:
             if side == 'N':
@@ -179,10 +198,6 @@ def display_maze(
                 print("  ", end="")
         print(wall_color + "█" + RESET)
     print(wall_color + "█" * (maze.width * 3 + 1) + RESET)
-                
-
-
-
 
 
 def main() -> None:
@@ -222,7 +237,9 @@ def main() -> None:
     color_index: int = 0
 
     os.system("clear")
-    display_maze(maze, config["ENTRY"], config["EXIT"], show_solution, wall_color)
+    display_maze(maze, config["ENTRY"],
+                 config["EXIT"], show_solution,
+                 wall_color)
 
     while True:
         print("\n==== A-Maze-ing ====")
@@ -252,18 +269,24 @@ def main() -> None:
                 config["OUTPUT_FILE"]
             )
             os.system("clear")
-            display_maze(maze, config["ENTRY"], config["EXIT"], show_solution, wall_color)
+            display_maze(maze, config["ENTRY"],
+                         config["EXIT"], show_solution,
+                         wall_color)
 
         elif choice == "2":
             show_solution = not show_solution
             os.system("clear")
-            display_maze(maze, config["ENTRY"], config["EXIT"], show_solution, wall_color)
+            display_maze(maze, config["ENTRY"],
+                         config["EXIT"], show_solution,
+                         wall_color)
 
         elif choice == "3":
             color_index = (color_index + 1) % len(colors)
             wall_color = colors[color_index]
             os.system("clear")
-            display_maze(maze, config["ENTRY"], config["EXIT"], show_solution, wall_color)
+            display_maze(maze, config["ENTRY"],
+                         config["EXIT"], show_solution,
+                         wall_color)
 
         elif choice == "4":
             print("Goodbye!")
