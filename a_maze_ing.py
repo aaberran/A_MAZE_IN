@@ -27,7 +27,7 @@ def parse_config(filename: str) -> dict:
                             )
                 except ValueError as e:
                     print(f"Error : {e}")
-                    sys.exit(1)
+                    sys.exit()
                 try:
                     key = key_value[0].upper()
                     if key in ["WIDTH", "HEIGHT", "SEED"]:
@@ -40,7 +40,7 @@ def parse_config(filename: str) -> dict:
                             value = (int(parts[0]), int(parts[1]))
                         except ValueError as e:
                             print(f"Error : {e}")
-                            sys.exit(1)
+                            sys.exit()
                     elif key == "PERFECT":
                         value = key_value[1].strip()
                         value = value.upper()
@@ -48,7 +48,6 @@ def parse_config(filename: str) -> dict:
                             value = True
                         elif value == 'FALSE' or value == '0':
                             value = False
-                            print(value)
                         else:
                             raise ValueError(
                                 "PERFECT must be True/False or 1/0"
@@ -59,7 +58,7 @@ def parse_config(filename: str) -> dict:
                         value = key_value[1].strip()
                 except ValueError as e:
                     print(e)
-                    sys.exit(1)
+                    sys.exit()
                 config[key] = value
             if "SEED" not in config:
                 config["SEED"] = 42
@@ -72,13 +71,13 @@ def parse_config(filename: str) -> dict:
                         raise ValueError(f"missing key '{key}' in config file")
             except ValueError as e:
                 print(f"Error: {e}")
-                sys.exit(1)
+                sys.exit()
             try:
                 if config["WIDTH"] <= 0 or config["HEIGHT"] <= 0:
                     raise ValueError("width and height must be greater than 0")
             except ValueError as e:
                 print(f"Error: {e}")
-                sys.exit(1)
+                sys.exit()
             try:
                 ix = config["ENTRY"][0]
                 iy = config["ENTRY"][1]
@@ -100,8 +99,8 @@ def parse_config(filename: str) -> dict:
                     raise ValueError("exit is outside the maze bounds")
             except ValueError as e:
                 print(f"Error : {e}")
-                sys.exit(1)
-    except FileNotFoundError:
+                sys.exit()
+    except Exception:
         print(f"Error: file '{filename}' not found")
         sys.exit(1)
     return config

@@ -81,7 +81,7 @@ class MazeGenerator:
             self.grid[y][x] = 0xF
 
         if not self.p_flag:
-            times: int = int(self.height * self.width * 0.4)
+            times: int = int(self.height * self.width * 0.15)
             while times:
                 rx: int = random.randint(0, self.width - 1)
                 ry: int = random.randint(0, self.height - 1)

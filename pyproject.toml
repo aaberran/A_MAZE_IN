@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mazegen"
+version = "1.0.0"
+description = "A maze generator using recursive backtracker algorithm"
+requires-python = ">=3.10"
+authors = [
+    {name = "Yahya El Murabet", email = "yel-mura@student.42.fr"},
+    {name = "Aymane Aberran", email = "aaberran@student.42.fr"}
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
