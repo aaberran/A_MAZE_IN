@@ -29,7 +29,8 @@ def parse_config(filename: str) -> dict:
                     print(f"Error : {e}")
                     sys.exit()
                 try:
-                    key = key_value[0].upper()
+                    key = key_value[0].strip()
+                    key = key.upper()
                     if key in ["WIDTH", "HEIGHT", "SEED"]:
                         value = int(key_value[1])
                     elif key in ["ENTRY", "EXIT"]:

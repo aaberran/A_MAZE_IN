@@ -1,8 +1,8 @@
 # default config
-width=15
-HEIGHT=15
-ENTRY=0,0
-EXIT=0,14
-OUTPUT_FILE=maze.txt
-PERFECT=True
-SEED=42
+width    =4
+HEIGHT    =4
+ENTRY   =0,0
+EXIT=  0,3
+OUTPUT_FILE   =maze.txt
+PERFECT=   True
+SEED=   42
