@@ -31,7 +31,7 @@ def parse_config(filename: str) -> dict:
                 try:
                     key = key_value[0].strip()
                     key = key.upper()
-                    if key in ["WIDTH", "HEIGHT", "SEED"]:
+                    if key in ["WIDTH", "HEIGHT"]:
                         value = int(key_value[1])
                     elif key in ["ENTRY", "EXIT"]:
                         try:
@@ -62,7 +62,7 @@ def parse_config(filename: str) -> dict:
                     sys.exit()
                 config[key] = value
             if "SEED" not in config:
-                config["SEED"] = 42
+                config["SEED"] = None
             keys = [
                 "WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"
                 ]
@@ -237,6 +237,8 @@ def main() -> None:
     color_index: int = 0
 
     os.system("clear")
+    if maze.width < 9 or maze.height < 7:
+            print("error: maze too small to display '42' pattern\n")
     display_maze(maze, config["ENTRY"],
                  config["EXIT"], show_solution,
                  wall_color)
@@ -253,7 +255,6 @@ def main() -> None:
             break
 
         if choice == "1":
-            config["SEED"] += 1
             maze = MazeGenerator(
                 width=config["WIDTH"],
                 height=config["HEIGHT"],
@@ -269,6 +270,8 @@ def main() -> None:
                 config["OUTPUT_FILE"]
             )
             os.system("clear")
+            if maze.width < 9 or maze.height < 7:
+                print("error: maze too small to display '42' pattern\n")
             display_maze(maze, config["ENTRY"],
                          config["EXIT"], show_solution,
                          wall_color)

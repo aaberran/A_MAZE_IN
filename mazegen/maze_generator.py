@@ -33,7 +33,7 @@ class MazeGenerator:
         Returns:
             None
         """
-        if self.width < 0 or self.height < 0:
+        if self.width < 0 or self.height:
             print("Error")
             sys.exit(1)
         logo = self.draw_42(entry, end) or set()
