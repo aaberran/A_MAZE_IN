@@ -160,7 +160,9 @@ def display_maze(
     GREEN = "\033[32m"
     RED = "\033[31m"
     BLUE = "\033[34m"
+    MAGENTA = "\033[35m"
     solutions: set[tuple[int, int]] = set()
+    logo: list[tuple[int, int]] = maze.logo
     if show_solution:
         cx, cy = entry
         solutions.add((cx, cy))
@@ -194,6 +196,8 @@ def display_maze(
                 print(RED + "😈" + RESET, end="")
             elif show_solution and (x, y) in solutions:
                 print(BLUE + "██" + RESET, end="")
+            elif (x, y) in logo and maze.width >= 9 and maze.height >= 7:
+                print(MAGENTA + "██" + RESET, end="")
             else:
                 print("  ", end="")
         print(wall_color + "█" + RESET)
@@ -238,7 +242,7 @@ def main() -> None:
 
     os.system("clear")
     if maze.width < 9 or maze.height < 7:
-            print("error: maze too small to display '42' pattern\n")
+        print("error: maze too small to display '42' pattern\n")
     display_maze(maze, config["ENTRY"],
                  config["EXIT"], show_solution,
                  wall_color)

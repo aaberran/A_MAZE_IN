@@ -1,11 +1,12 @@
 import random
 from collections import deque
 import sys
+from typing import Self
 
 
 class MazeGenerator:
     """A maze generator using recursive backtracker algorithm."""
-    def __init__(self, width: int, height: int,
+    def __init__(self: Self, width: int, height: int,
                  seed: int, p_flag: bool) -> None:
         """Initialize the MazeGenerator.
         Args:
@@ -22,9 +23,11 @@ class MazeGenerator:
         self.grid: list[list[int]] = [
             [0xF] * self.width for _ in range(self.height)
             ]
+        self.logo: set = set()
         random.seed(self.seed)
 
-    def generate(self, entry: tuple[int, int], end: tuple[int, int]) -> None:
+    def generate(self: Self, entry: tuple[int, int],
+                 end: tuple[int, int]) -> None:
         """Generate the maze using recursive backtracker algorithm.
 
         Carves passages through the grid by removing walls between
@@ -33,8 +36,8 @@ class MazeGenerator:
         Returns:
             None
         """
-        if self.width < 0 or self.height:
-            print("Error")
+        if self.width < 0 or self.height < 0:
+            print("Error cccc")
             sys.exit(1)
         logo = self.draw_42(entry, end) or set()
         stack = [(0, 0)]
@@ -110,7 +113,7 @@ class MazeGenerator:
                     self.grid[ry][rx-1] &= ~0x2
                 times -= 1
 
-    def get_solution(self, entry: tuple[int, int],
+    def get_solution(self: Self, entry: tuple[int, int],
                      end: tuple[int, int]) -> None:
         """Find shortest path from entry to exit using BFS.
 
@@ -171,7 +174,8 @@ class MazeGenerator:
         path.reverse()
         self.solution = path
 
-    def draw_42(self, entry: tuple[int, int], end: tuple[int, int]) -> list:
+    def draw_42(self: Self, entry: tuple[int, int],
+                end: tuple[int, int]) -> list:
         """Compute and return the set of cells forming the '42' pattern.
 
         Args:
@@ -203,4 +207,5 @@ class MazeGenerator:
         if entry in pattern_cells or end in pattern_cells:
             print("Error: entry or exit is inside the '42' pattern")
             sys.exit(1)
+        self.logo = pattern_cells
         return pattern_cells
