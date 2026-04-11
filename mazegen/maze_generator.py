@@ -2,12 +2,13 @@ import random
 from collections import deque
 import sys
 from typing import Self
+from typing import Callable, Optional, Union
 
 
 class MazeGenerator:
     """A maze generator using recursive backtracker algorithm."""
     def __init__(self: Self, width: int, height: int,
-                 seed: int, p_flag: bool) -> None:
+                 seed: Optional[int], p_flag: bool) -> None:
         """Initialize the MazeGenerator.
         Args:
             width: number of cells horizontally
@@ -15,6 +16,10 @@ class MazeGenerator:
             seed: random seed for reproducibility
             p_flag: if True generate a perfect maze
         """
+        if seed is None:
+            seed = random.randint(0, 999999999)
+        else:
+            self.seed = seed
         self.width = width
         self.height = height
         self.seed = seed
@@ -26,8 +31,9 @@ class MazeGenerator:
         self.logo: set = set()
         random.seed(self.seed)
 
-    def generate(self: Self, entry: tuple[int, int],
-                 end: tuple[int, int]) -> None:
+    def generate(
+        self: Self, entry: tuple[int, int], end: tuple[int, int],
+            callback: Optional[Callable[[], None]] = None) -> None:
         """Generate the maze using recursive backtracker algorithm.
 
         Carves passages through the grid by removing walls between
@@ -78,6 +84,8 @@ class MazeGenerator:
                     self.grid[ry][rx] &= ~0x4
                 is_visited[ry][rx] = True
                 stack.append((rx, ry))
+                if callback:
+                    callback()
             else:
                 stack.pop()
         for x, y in logo:
@@ -86,31 +94,31 @@ class MazeGenerator:
         if not self.p_flag:
             times: int = int(self.height * self.width * 0.15)
             while times:
-                rx: int = random.randint(0, self.width - 1)
-                ry: int = random.randint(0, self.height - 1)
-                sides: list[str] = ['N', 'E', 'S', 'W']
-                side: str = random.choice(sides)
-                if (ry > 0 and side == 'N'
-                        and (rx, ry-1) not in logo
-                        and (rx, ry) not in logo):
-                    self.grid[ry][rx] &= ~0x1
-                    self.grid[ry-1][rx] &= ~0x4
-                elif (rx < self.width - 1
+                rx_r: int = random.randint(0, self.width - 1)
+                ry_r: int = random.randint(0, self.height - 1)
+                ways: list[str] = ['N', 'E', 'S', 'W']
+                side: str = random.choice(ways)
+                if (ry_r > 0 and side == 'N'
+                        and (rx_r, ry_r-1) not in logo
+                        and (rx_r, ry_r) not in logo):
+                    self.grid[ry_r][rx_r] &= ~0x1
+                    self.grid[ry_r-1][rx_r] &= ~0x4
+                elif (rx_r < self.width - 1
                         and side == 'E'
-                        and (rx+1, ry) not in logo
-                        and (rx, ry) not in logo):
-                    self.grid[ry][rx] &= ~0x2
-                    self.grid[ry][rx+1] &= ~0x8
-                elif (ry < self.height - 1
-                      and side == 'S' and (rx, ry+1) not in logo
-                      and (rx, ry) not in logo):
-                    self.grid[ry][rx] &= ~0x4
-                    self.grid[ry+1][rx] &= ~0x1
-                elif (rx > 0 and side == 'W'
-                      and (rx-1, ry) not in logo
-                      and (rx, ry) not in logo):
-                    self.grid[ry][rx] &= ~0x8
-                    self.grid[ry][rx-1] &= ~0x2
+                        and (rx_r+1, ry_r) not in logo
+                        and (rx_r, ry_r) not in logo):
+                    self.grid[ry_r][rx_r] &= ~0x2
+                    self.grid[ry_r][rx_r+1] &= ~0x8
+                elif (ry_r < self.height - 1
+                      and side == 'S' and (rx_r, ry+1) not in logo
+                      and (rx_r, ry_r) not in logo):
+                    self.grid[ry_r][rx_r] &= ~0x4
+                    self.grid[ry_r+1][rx_r] &= ~0x1
+                elif (rx_r > 0 and side == 'W'
+                      and (rx_r-1, ry_r) not in logo
+                      and (rx_r, ry_r) not in logo):
+                    self.grid[ry_r][rx_r] &= ~0x8
+                    self.grid[ry_r][rx_r-1] &= ~0x2
                 times -= 1
 
     def get_solution(self: Self, entry: tuple[int, int],
@@ -124,9 +132,10 @@ class MazeGenerator:
         Returns:
             None
         """
-        came_from: list[
-            list[tuple[int, int] | None]
-            ] = [[None] * self.width for _ in range(self.height)]
+        cell = Union[tuple[int, int], str, None]
+        came_from: list[list[cell]] = [
+            [None for _ in range(self.width)] for _ in range(self.height)
+        ]
         queue: deque[tuple[int, int]] = deque()
         x, y = entry
         queue.append(entry)
@@ -160,22 +169,25 @@ class MazeGenerator:
         path: list[str] = []
         while came_from[cy][cx] != "START":
             pre = came_from[cy][cx]
-            px, py = pre
-            if px < cx:
-                path.append('E')
-            elif px > cx:
-                path.append('W')
-            elif py < cy:
-                path.append('S')
-            elif py > cy:
-                path.append('N')
-            cx, cy = px, py
+            if isinstance(pre, tuple):
+                px, py = pre
+                if px < cx:
+                    path.append('E')
+                elif px > cx:
+                    path.append('W')
+                elif py < cy:
+                    path.append('S')
+                elif py > cy:
+                    path.append('N')
+                cx, cy = px, py
+            else:
+                break
 
         path.reverse()
         self.solution = path
 
     def draw_42(self: Self, entry: tuple[int, int],
-                end: tuple[int, int]) -> list:
+                end: tuple[int, int]) -> Optional[set[tuple[int, int]]]:
         """Compute and return the set of cells forming the '42' pattern.
 
         Args:
@@ -187,7 +199,7 @@ class MazeGenerator:
         """
         if self.width < 9 or self.height < 7:
             print("error: maze too small to display '42' pattern")
-            return
+            return None
         start_x = (self.width - 7) // 2
         start_y = (self.height - 5) // 2
         four = [

@@ -1,9 +1,11 @@
 import sys
 import os
 from mazegen.maze_generator import MazeGenerator
+from animation import Animation
+from typing import Union, Any
 
 
-def parse_config(filename: str) -> dict:
+def parse_config(filename: str) -> dict[str, Any]:
     """Parse the configuration file and return a dictionary.
 
     Args:
@@ -12,7 +14,7 @@ def parse_config(filename: str) -> dict:
     Returns:
         dictionary containing all config values
     """
-    config = {}
+    config: dict[str, Any] = {}
     try:
         with open(filename, "r") as f:
             for line in f:
@@ -31,6 +33,7 @@ def parse_config(filename: str) -> dict:
                 try:
                     key = key_value[0].strip()
                     key = key.upper()
+                    value: Union[int, str, bool, tuple[int, int], None] = None
                     if key in ["WIDTH", "HEIGHT"]:
                         value = int(key_value[1])
                     elif key in ["ENTRY", "EXIT"]:
@@ -43,9 +46,8 @@ def parse_config(filename: str) -> dict:
                             print(f"Error : {e}")
                             sys.exit()
                     elif key == "PERFECT":
-                        value = key_value[1].strip()
-                        value = value.upper()
-                        if value == 'TRUE' or value == '1':
+                        perfect_str: str = key_value[1].upper().strip()
+                        if perfect_str == 'TRUE' or perfect_str == '1':
                             value = True
                         elif value == 'FALSE' or value == '0':
                             value = False
@@ -162,7 +164,7 @@ def display_maze(
     BLUE = "\033[34m"
     MAGENTA = "\033[35m"
     solutions: set[tuple[int, int]] = set()
-    logo: list[tuple[int, int]] = maze.logo
+    logo: set[tuple[int, int]] = maze.logo
     if show_solution:
         cx, cy = entry
         solutions.add((cx, cy))
@@ -253,12 +255,14 @@ def main() -> None:
         print("2. Show/Hide path")
         print("3. Change wall color")
         print("4. Quit")
+        print("5. Animate maze generation")
         try:
-            choice = input("Choice (1-4): ").strip()
+            choice = input("Choice (1-5): ").strip()
         except (EOFError, KeyboardInterrupt):
             break
 
         if choice == "1":
+            config = parse_config(filename)
             maze = MazeGenerator(
                 width=config["WIDTH"],
                 height=config["HEIGHT"],
@@ -299,8 +303,33 @@ def main() -> None:
             print("Goodbye!")
             sys.exit(0)
 
+        elif choice == "5":
+            config = parse_config(filename)
+            maze = MazeGenerator(
+                width=config["WIDTH"],
+                height=config["HEIGHT"],
+                seed=maze.seed,
+                p_flag=config["PERFECT"]
+            )
+            anim = Animation(
+                maze,
+                config["ENTRY"],
+                config["EXIT"],
+                config.get("ANIMATE_SPEED", 0.05),
+                wall_color,
+            )
+            maze.generate(config["ENTRY"], config["EXIT"], anim.animate)
+            maze.get_solution(config["ENTRY"], config["EXIT"])
+            write_output(
+                maze, config["ENTRY"],
+                config["EXIT"], config["OUTPUT_FILE"])
+            os.system("clear")
+            display_maze(
+                maze, config["ENTRY"],
+                config["EXIT"], show_solution, wall_color)
+
         else:
-            print("Invalid choice. Please enter 1-4.")
+            print("Invalid choice. Please enter 1-5.")
 
 
 if __name__ == "__main__":
