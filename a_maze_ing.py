@@ -49,7 +49,7 @@ def parse_config(filename: str) -> dict[str, Any]:
                         perfect_str: str = key_value[1].upper().strip()
                         if perfect_str == 'TRUE' or perfect_str == '1':
                             value = True
-                        elif value == 'FALSE' or value == '0':
+                        elif perfect_str == 'FALSE' or perfect_str == '0':
                             value = False
                         else:
                             raise ValueError(
